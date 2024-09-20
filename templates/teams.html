@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teams</title>
+    <link rel="stylesheet" href="/static/style.css">
+    </style>
+</head>
+<body>
+    <h1>Teams</h1>
+    <form id="addUserForm">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+        <button type="submit">Add User</button>
+    </form>
+    <div id="message"></div>
+    
+    <h2>Current Users</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>SI No.</th>
+                <th>Username</th>
+            </tr>
+        </thead>
+        <tbody id="userList"></tbody>
+    </table>
+
+    <script>
+        document.getElementById('addUserForm').onsubmit = async function(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+
+            const response = await fetch('/users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                document.getElementById('message').textContent = 'User added!';
+                loadUsers();
+            } else {
+                document.getElementById('message').textContent = 'Error adding user.';
+            }
+        };
+
+        async function loadUsers() {
+            const response = await fetch('/users-data');
+            const users = await response.json();
+            const userList = document.getElementById('userList');
+            userList.innerHTML = '';
+            users.forEach((user, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${index + 1}</td><td>${user.username}</td>`;
+                userList.appendChild(tr);
+            });
+        }
+
+        loadUsers();
+    </script>
+</body>
+</html>
